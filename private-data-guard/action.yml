@@ -1,0 +1,23 @@
+name: Private-data guard
+description: Fails when private-data patterns match a repository's files or history, without ever printing the patterns or what they matched.
+
+inputs:
+  patterns:
+    description: Extended regular expressions, one per line, matched case-insensitively. Pass a secret, never a literal.
+    required: true
+  path:
+    description: The repository folder to check.
+    default: .
+  range:
+    description: The commits to check, as a git revision range. The default is the whole history behind the checked-out commit, which needs a checkout with fetch-depth 0.
+    default: HEAD
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        PRIVATE_DATA_PATTERNS: ${{ inputs.patterns }}
+        GUARD_PATH: ${{ inputs.path }}
+        GUARD_RANGE: ${{ inputs.range }}
+      run: '"$GITHUB_ACTION_PATH/guard.sh" "$GUARD_PATH" "$GUARD_RANGE"'
